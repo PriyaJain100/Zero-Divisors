@@ -1,0 +1,57 @@
+# Program to find out all the elemets in F2D8 whose square is 0. 
+
+from itertools import product
+
+# Define the elements of D8
+elements = ["e", "r", "r2", "r3", "s", "sr", "sr2", "sr3"]
+
+# Multiplication table of D8 based on group rules
+def d8_multiply(a, b):
+    if a == "e":
+        return b
+    if b == "e":
+        return a
+    if a == "r":
+        return {"r": "r2", "r2": "r3", "r3": "e", "s": "sr", "sr": "sr2", "sr2": "sr3", "sr3": "s"}[b]
+    if a == "r2":
+        return {"r": "r3", "r2": "e", "r3": "r", "s": "sr2", "sr": "sr3", "sr2": "s", "sr3": "sr"}[b]
+    if a == "r3":
+        return {"r": "e", "r2": "r", "r3": "r2", "s": "sr3", "sr": "s", "sr2": "sr", "sr3": "sr2"}[b]
+    if a == "s":
+        return {"r": "sr3", "r2": "sr2", "r3": "sr", "s": "e", "sr": "r", "sr2": "r2", "sr3": "r3"}[b]
+    if a == "sr":
+        return {"r": "s", "r2": "sr3", "r3": "sr2", "s": "r", "sr": "e", "sr2": "r3", "sr3": "r2"}[b]
+    if a == "sr2":
+        return {"r": "sr", "r2": "s", "r3": "sr3", "s": "r2", "sr": "r3", "sr2": "e", "sr3": "r"}[b]
+    if a == "sr3":
+        return {"r": "sr2", "r2": "sr", "r3": "s", "s": "r3", "sr": "r2", "sr2": "r", "sr3": "e"}[b]
+
+# Compute product in F2[D8]
+def group_ring_multiply(x, y):
+    result = {el: 0 for el in elements}
+    for a, coeff_a in x.items():
+        for b, coeff_b in y.items():
+            product = d8_multiply(a, b)
+            result[product] = (result[product] + coeff_a * coeff_b) % 2
+    return result
+
+# Check if an element squared is zero
+def is_square_zero(x):
+    square = group_ring_multiply(x, x)
+    return all(coeff == 0 for coeff in square.values())
+
+# Generate all elements in F2[D8]
+def generate_all_elements():
+    for coeffs in product([0, 1], repeat=8):
+        yield {elements[i]: coeffs[i] for i in range(8)}
+
+# Find all elements whose square is zero
+zero_squares = []
+for elem in generate_all_elements():
+    if is_square_zero(elem):
+        zero_squares.append(elem)
+
+# Display results
+print("Elements whose square is zero:")
+for elem in zero_squares:
+    print(elem)
