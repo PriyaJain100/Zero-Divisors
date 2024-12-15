@@ -1,0 +1,50 @@
+# Program to find all the nilpotent elements in a group ring F2D8 with nilpotency index 2.
+
+from itertools import product
+# Define the elements of D8
+elements = ["e", "b", "b2", "b3", "a", "ab", "ab2", "ab3"]
+# Multiplication table of D8 based on group rules
+def d8_multiply(a, b):
+    if a == "e":
+        return b
+    if b == "e":
+        return a
+    if a == "b":
+        return {"b": "b2", "b2": "b3", "b3": "e", "a": "ab", "ab": "ab2", "ab2": "ab3", "ab3": "a"}[b]
+    if a == "b2":
+        return {"b": "b3", "b2": "e", "b3": "b", "a": "ab2", "ab": "ab3", "ab2": "a", "ab3": "ab"}[b]
+    if a == "b3":
+        return {"b": "e", "b2": "b", "b3": "b2", "a": "ab3", "ab": "a", "ab2": "ab", "ab3": "ab2"}[b]
+    if a == "a":
+        return {"b": "ab3", "b2": "ab2", "b3": "ab", "a": "e", "ab": "b", "ab2": "b2", "ab3": "b3"}[b]
+    if a == "ab":
+        return {"b": "a", "b2": "ab3", "b3": "ab2", "a": "b", "ab": "e", "ab2": "b3", "ab3": "b2"}[b]
+    if a == "ab2":
+        return {"b": "ab", "b2": "a", "b3": "ab3", "a": "b2", "ab": "b3", "ab2": "e", "ab3": "b"}[b]
+    if a == "ab3":
+        return {"b": "ab2", "b2": "ab", "b3": "a", "a": "b3", "ab": "b2", "ab2": "b", "ab3": "e"}[b]
+# Compute product in F2[D8]
+def group_ring_multiply(x, y):
+    result = {el: 0 for el in elements}
+    for a, coeff_a in x.items():
+        for b, coeff_b in y.items():
+            product = d8_multiply(a, b)
+            result[product] = (result[product] + coeff_a * coeff_b) % 2
+    return result
+# Check if an element squared is zero
+def is_square_zero(x):
+    square = group_ring_multiply(x, x)
+    return all(coeff == 0 for coeff in square.values())
+# Generate all elements in F2[D8]
+def generate_all_elements():
+    for coeffs in product([0, 1], repeat=8):
+        yield {elements[i]: coeffs[i] for i in range(8)}
+# Find all elements whose square is zero
+zero_squares = []
+for elem in generate_all_elements():
+    if is_square_zero(elem):
+        zero_squares.append(elem)
+# Display results
+print("Elements whose square is zero:")
+for elem in zero_squares:
+    print(elem)
